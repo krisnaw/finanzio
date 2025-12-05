@@ -4,8 +4,7 @@ export const Route = createFileRoute('/webhook/incoming')({
   server: {
     handlers: {
       GET: async ({ request }) => {
-        console.log(request)
-        return new Response('Hello, World! from incoming ' + request.url)
+        return new Response(', World! from incoming ' + request.url)
       },
       POST: async ({ request }) => {
 
@@ -13,6 +12,7 @@ export const Route = createFileRoute('/webhook/incoming')({
 
 
         console.log(event.type)
+        console.log("this is post webhook")
 
 
         return new Response('post. Hello, World! from incoming ' + request.url)
