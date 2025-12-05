@@ -1,4 +1,7 @@
 import {createFileRoute} from '@tanstack/react-router'
+import {Resend} from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const Route = createFileRoute('/webhook/incoming')({
   server: {
@@ -10,6 +13,17 @@ export const Route = createFileRoute('/webhook/incoming')({
 
         const event = await request.json();
 
+        if (event.type === 'email.received') {
+          const { data: email } = await resend
+            .emails
+            .receiving
+            .get(event.data.email_id);
+
+          console.log(email?.html);
+          console.log(email?.text);
+          console.log(email?.headers);
+          return new Response(email?.text)
+        }
 
         console.log(event.type)
         console.log("this is post webhook")
