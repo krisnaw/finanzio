@@ -8,6 +8,13 @@
       "when": 1764916730966,
       "tag": "0000_familiar_goliath",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1765631389063,
+      "tag": "0001_modern_thaddeus_ross",
+      "breakpoints": true
     }
   ]
 }
