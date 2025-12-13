@@ -8,8 +8,8 @@
     "serve": "bun --bun vite preview",
     "start": "bun run .output/server/index.mjs",
     "test": "vitest run",
-    "db:generate": "bun bunx drizzle-kit generate",
-    "db:migrate": "bun bunx drizzle-kit migrate",
+    "db:generate": "bunx drizzle-kit generate",
+    "db:migrate": "bunx drizzle-kit migrate",
     "db:studio": "bunx drizzle-kit studio"
   },
   "dependencies": {

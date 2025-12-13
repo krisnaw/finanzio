@@ -4,64 +4,48 @@ import {cn} from "@/lib/utils.ts";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card.tsx";
 import {Field, FieldDescription, FieldGroup, FieldLabel} from "@/components/ui/field.tsx";
 import {Input} from "@/components/ui/input.tsx";
-import {createServerFn} from "@tanstack/react-start";
-import {auth} from "@/lib/auth.ts";
-import {useMutation} from "@tanstack/react-query";
 import {toast} from "sonner";
 import {Spinner} from "@/components/ui/spinner.tsx";
+import {authClient} from "@/lib/auth-client.ts";
+import {useState} from "react";
 
 export const Route = createFileRoute('/_authLayout/auth/register')({
   component: RouteComponent,
 })
 
-export const registerFn = createServerFn({method: "POST"})
-  .inputValidator((data: { name: string, email: string, password: string }) => data)
-  .handler(async ({data}) => {
-    const result = await auth.api.signUpEmail({
-      body: {
-        name: data.name, // required
-        email: data.email, // required
-        password: data.password, // required
-      },
-    });
-
-    return {
-      success: true,
-      data: result
-    }
-  })
 
 function RouteComponent() {
   const navigate = useNavigate()
+  const [isPending, setIsPending] = useState(false);
 
-  const mutation = useMutation({
-    mutationFn: async (formData: FormData) => {
-
-      const result = await registerFn({
-        data: {
-          name: formData.get('name') as string,
-          email: formData.get('email') as string,
-          password: formData.get('password') as string
-        }
-      })
-
-      return result.data
-    },
-    onSuccess: (data) => {
-      console.log('Success:', data)
-      toast.success('Registration successful')
-      navigate({ to: '/dashboard'})
-    },
-    onError: (error) => {
-      console.error('Error:', error)
-      toast.error('Registration failed')
-    }
-  })
-
-  const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
+  const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    mutation.mutate(formData);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+    const name = formData.get('name') as string;
+
+    await authClient.signUp.email({
+      name,
+      email,
+      password
+    }, {
+      onRequest: () => {
+        //show loading
+        setIsPending(true);
+      },
+      onSuccess: () => {
+        //redirect to the dashboard or sign in page
+        toast.success('Sign up successful')
+        setIsPending(false);
+        navigate({to: '/dashboard'})
+      },
+      onError: (ctx) => {
+        // display the error message
+        toast.error(ctx.error.message);
+      },
+    });
+
   }
 
 
@@ -96,8 +80,8 @@ function RouteComponent() {
                 <Input id="password" name="password" type="password" required/>
               </Field>
               <Field>
-                <Button type="submit"  disabled={mutation.isPending}>
-                  {mutation.isPending ? <Spinner /> : null}
+                <Button type="submit"  disabled={isPending}>
+                  {isPending ? <Spinner /> : null}
                   Register
                 </Button>
                 <FieldDescription className="text-center">
