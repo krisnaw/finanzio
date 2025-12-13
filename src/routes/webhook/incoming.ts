@@ -1,6 +1,8 @@
 import {createFileRoute} from '@tanstack/react-router'
 import {Resend} from "resend";
 import {parseBcaTransactionEmail} from "@/lib/parser.ts";
+import {db} from "@/db/db-connection.ts";
+import {transactionSchema} from "@/db/schema/transaction-schema.ts";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -23,14 +25,12 @@ export const Route = createFileRoute('/webhook/incoming')({
 
           if(email?.text) {
             const parsed = parseBcaTransactionEmail(email?.text)
-            const payload = {
-              acquirer: parsed.acquirer,
-              currency: parsed.totalPayment?.currency,
-              amount: parsed.totalPayment?.amount
-            }
-            console.log("Payload", payload)
-            console.log("Parsed result")
-            console.log(parsed)
+            const amount = parsed.totalPayment?.amount;
+            await db.insert(transactionSchema).values({
+              acquirer: parsed.acquirer ?? 'BCA',
+              currency: parsed.totalPayment?.currency ?? 'IDR',
+              amount: (amount && !isNaN(amount)) ? amount.toString() : '0',
+            })
           }
 
 
