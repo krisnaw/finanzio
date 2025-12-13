@@ -13,6 +13,7 @@ import {
 import {SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,} from "@/components/ui/sidebar"
 import {authClient} from "@/lib/auth-client.ts";
 import {useNavigate} from "@tanstack/react-router";
+import {toast} from "sonner";
 
 export function NavUser() {
   const { isMobile } = useSidebar()
@@ -32,6 +33,7 @@ export function NavUser() {
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
+          toast.success("Logged out successfully");
           navigate({ to: "/auth/login" }); // redirect to login page
         },
       },
