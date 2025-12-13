@@ -1,40 +1,69 @@
-import {createFileRoute} from '@tanstack/react-router'
+import {createFileRoute, useNavigate} from '@tanstack/react-router'
 import {Button} from "@/components/ui/button.tsx";
 import {cn} from "@/lib/utils.ts";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card.tsx";
 import {Field, FieldDescription, FieldGroup, FieldLabel} from "@/components/ui/field.tsx";
 import {Input} from "@/components/ui/input.tsx";
+import {createServerFn} from "@tanstack/react-start";
+import {auth} from "@/lib/auth.ts";
+import {useMutation} from "@tanstack/react-query";
+import {toast} from "sonner";
+import {Spinner} from "@/components/ui/spinner.tsx";
 
 export const Route = createFileRoute('/_authLayout/auth/register')({
   component: RouteComponent,
 })
 
-// const UserSchema = z.object({
-//   email: z.string().min(1),
-//   password: z.string().min(1)
-// })
+export const registerFn = createServerFn({method: "POST"})
+  .inputValidator((data: { name: string, email: string, password: string }) => data)
+  .handler(async ({data}) => {
+    const result = await auth.api.signUpEmail({
+      body: {
+        name: data.name, // required
+        email: data.email, // required
+        password: data.password, // required
+      },
+    });
 
-// const registerUser = createServerFn({method: 'POST'})
-//   .inputValidator(UserSchema)
-//   .handler(async ({data}) => {
-//     console.log(data)
-//     console.log('this is data')
-//     return {success: true}
-//   })
+    return {
+      success: true,
+      data: result
+    }
+  })
 
 function RouteComponent() {
-  //
-  // async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-  //   e.preventDefault();
-  //   const formData = new FormData(e.currentTarget)
-  //   const res = await registerUser({
-  //     data: {
-  //       email: formData.get('email')?.toString(),
-  //       password: formData.get('password')?.toString()
-  //     }
-  //   })
-  //   console.log(res)
-  // }
+  const navigate = useNavigate()
+
+  const mutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+
+      const result = await registerFn({
+        data: {
+          name: formData.get('name') as string,
+          email: formData.get('email') as string,
+          password: formData.get('password') as string
+        }
+      })
+
+      return result.data
+    },
+    onSuccess: (data) => {
+      console.log('Success:', data)
+      toast.success('Registration successful')
+      navigate({ to: '/dashboard'})
+    },
+    onError: (error) => {
+      console.error('Error:', error)
+      toast.error('Registration failed')
+    }
+  })
+
+  const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    mutation.mutate(formData);
+  }
+
 
   return (
     <div className={cn("flex flex-col gap-6")}>
@@ -42,40 +71,37 @@ function RouteComponent() {
         <CardHeader>
           <CardTitle>Register to your account</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Enter your name, email, and password below to create an account
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={submitHandler}>
             <FieldGroup>
+              <Field>
+                <FieldLabel htmlFor="name">Full Name</FieldLabel>
+                <Input id="name" name="name" placeholder="John Doe" required />
+              </Field>
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
                   id="email"
                   type="email"
+                  name="email"
                   placeholder="m@example.com"
                   required
                 />
               </Field>
               <Field>
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <a
-                    href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
-                </div>
-                <Input id="password" type="password" required />
+                <FieldLabel htmlFor="password">Password</FieldLabel>
+                <Input id="password" name="password" type="password" required/>
               </Field>
               <Field>
-                <Button type="submit">Login</Button>
-                <Button variant="outline" type="button">
-                  Login with Google
+                <Button type="submit"  disabled={mutation.isPending}>
+                  {mutation.isPending ? <Spinner /> : null}
+                  Register
                 </Button>
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account? <a href="#">Sign up</a>
+                  Already have an account? <a href="/auth/login" >Sign in</a>
                 </FieldDescription>
               </Field>
             </FieldGroup>

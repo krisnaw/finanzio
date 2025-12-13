@@ -3,6 +3,9 @@ import {TanStackRouterDevtoolsPanel} from '@tanstack/react-router-devtools'
 import {TanStackDevtools} from '@tanstack/react-devtools'
 
 import appCss from '../styles.css?url'
+import {QueryClientProvider} from "@tanstack/react-query";
+import {QueryClient} from "@tanstack/query-core";
+import {Toaster} from "sonner";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -29,28 +32,36 @@ export const Route = createRootRoute({
   shellComponent: RootDocument,
 })
 
-function RootDocument({ children }: { children: React.ReactNode }) {
+// Create a client
+const queryClient = new QueryClient()
+
+function RootDocument({children}: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head>
-        <title>Finanzio</title>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <TanStackDevtools
-          config={{
-            position: 'bottom-right',
-          }}
-          plugins={[
-            {
-              name: 'Tanstack Router',
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-          ]}
-        />
-        <Scripts />
-      </body>
+    <head>
+      <title>Finanzio</title>
+      <HeadContent/>
+    </head>
+    <body>
+    <QueryClientProvider client={queryClient}>
+      {children}
+    </QueryClientProvider>
+
+    <Toaster />
+
+    <TanStackDevtools
+      config={{
+        position: 'bottom-right',
+      }}
+      plugins={[
+        {
+          name: 'Tanstack Router',
+          render: <TanStackRouterDevtoolsPanel/>,
+        },
+      ]}
+    />
+    <Scripts/>
+    </body>
     </html>
   )
 }
