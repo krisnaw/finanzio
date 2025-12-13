@@ -31,7 +31,9 @@ const matchField = (text: string, label: string) => {
 
 const parseAmount = (raw?: string): PaymentAmount | undefined => {
   if (!raw) return undefined
-  const amountMatch = raw.match(/([A-Z]{3})\\s+([\\d,.]+)/)
+  console.log("parseAmount raw input:", raw);
+  const amountMatch = raw.match(/([A-Z]{3})\s+([\d,.]+)/)
+  console.log("parseAmount amountMatch:", amountMatch);
   if (!amountMatch) {
     return {
       currency: "",
@@ -42,7 +44,7 @@ const parseAmount = (raw?: string): PaymentAmount | undefined => {
 
   const [, currency, numeric] = amountMatch
   const amount = Number.parseFloat(numeric.replace(/,/g, ""))
-
+  console.log("parseAmount result:", { currency, amount, raw });
   return {
     currency,
     amount,
@@ -58,8 +60,10 @@ export const parseBcaTransactionEmail = (
 ): BcaTransactionDetails => {
   const text = cleanText(rawText)
   const recipientName =
-    text.match(/Hello\\s+([^,]+),/i)?.[1].trim() ?? undefined
+    text.match(/Hello\s+([^,]+),/i)?.[1].trim() ?? undefined
   const transactionDate = matchField(text, "Transaction Date")
+  const totalPaymentRaw = matchField(text, "Total Payment");
+  console.log("parseBcaTransactionEmail - Total Payment Raw:", totalPaymentRaw);
   return {
     recipientName,
     status: matchField(text, "Status"),
@@ -72,7 +76,7 @@ export const parseBcaTransactionEmail = (
     terminalId: matchField(text, "Terminal ID"),
     sourceOfFund: matchField(text, "Source of Fund"),
     customerPan: matchField(text, "Customer PAN"),
-    totalPayment: parseAmount(matchField(text, "Total Payment")),
+    totalPayment: parseAmount(totalPaymentRaw),
     rrn: matchField(text, "RRN"),
     referenceNo: matchField(text, "Reference No."),
   }
