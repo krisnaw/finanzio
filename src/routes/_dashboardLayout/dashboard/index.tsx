@@ -2,7 +2,9 @@ import {createFileRoute} from '@tanstack/react-router'
 import {getTransactions} from "@/serverActions/transactionActions.ts";
 
 export const Route = createFileRoute('/_dashboardLayout/dashboard/')({
-  loader: () => getTransactions(),
+  loader: async () => {
+    return await getTransactions()
+  },
   component: RouteComponent,
 })
 
