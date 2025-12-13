@@ -2,8 +2,12 @@ import {betterAuth} from "better-auth"
 import {drizzleAdapter} from "better-auth/adapters/drizzle";
 import {db} from "@/db/db-connection.ts";
 import * as schema from "@/db/schema/auth-schema";
+import {tanstackStartCookies} from "better-auth/tanstack-start";
 
 export const auth = betterAuth({
+  plugins: [
+    tanstackStartCookies()
+  ],
   database: drizzleAdapter(db, {
     provider: "pg", // or "pg" or "mysql"
     schema: {
