@@ -1,5 +1,6 @@
 import {createFileRoute} from '@tanstack/react-router'
 import {Resend} from "resend";
+import {parseBcaTransactionEmail} from "@/lib/parser.ts";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -19,9 +20,11 @@ export const Route = createFileRoute('/webhook/incoming')({
             .receiving
             .get(event.data.email_id);
 
-          console.log(email?.html);
-          console.log(email?.text);
-          console.log(email?.headers);
+          if(email?.text) {
+            const parsed = parseBcaTransactionEmail(email.text)
+            console.log(parsed)
+          }
+
           return new Response(email?.text)
         }
 

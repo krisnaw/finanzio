@@ -4,5 +4,3 @@ export const authClient = createAuthClient({
   /** The base URL of the server (optional if you're using the same domain) */
   baseURL: window.location.origin
 })
-
-export const { signIn, signUp, useSession } = createAuthClient()
