@@ -23,6 +23,12 @@ export const Route = createFileRoute('/webhook/incoming')({
 
           if(email?.text) {
             const parsed = parseBcaTransactionEmail(email?.text)
+            const payload = {
+              acquirer: parsed.acquirer,
+              currency: parsed.totalPayment?.currency,
+              amount: parsed.totalPayment?.amount
+            }
+            console.log("Payload", payload)
             console.log("Parsed result")
             console.log(parsed)
           }
