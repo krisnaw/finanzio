@@ -60,7 +60,7 @@ export const parseBcaTransactionEmail = (
   const recipientName =
     text.match(/Hello\\s+([^,]+),/i)?.[1].trim() ?? undefined
   const transactionDate = matchField(text, "Transaction Date")
-  const details: BcaTransactionDetails = {
+  return {
     recipientName,
     status: matchField(text, "Status"),
     transactionDate: transactionDate ? new Date(transactionDate) : undefined,
@@ -76,6 +76,4 @@ export const parseBcaTransactionEmail = (
     rrn: matchField(text, "RRN"),
     referenceNo: matchField(text, "Reference No."),
   }
-
-  return details
 }

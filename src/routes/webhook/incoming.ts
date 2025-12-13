@@ -20,10 +20,13 @@ export const Route = createFileRoute('/webhook/incoming')({
             .receiving
             .get(event.data.email_id);
 
+
           if(email?.text) {
-            const parsed = parseBcaTransactionEmail(email.text)
+            const parsed = parseBcaTransactionEmail(email?.text)
+            console.log("Parsed result")
             console.log(parsed)
           }
+
 
           return new Response(email?.text)
         }
