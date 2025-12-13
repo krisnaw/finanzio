@@ -5,6 +5,10 @@ import * as schema from "@/db/schema/auth-schema";
 import {tanstackStartCookies} from "better-auth/tanstack-start";
 
 export const auth = betterAuth({
+  trustedOrigins: [
+    "http://localhost:8080",
+    "https://finanzio-production.up.railway.app"
+  ],
   plugins: [
     tanstackStartCookies()
   ],
