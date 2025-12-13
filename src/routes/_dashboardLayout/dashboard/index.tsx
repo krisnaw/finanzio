@@ -14,5 +14,9 @@ function RouteComponent() {
   })
 
   console.log(data)
-  return <div>Hello "/dashboard/"!</div>
+  return (
+    <div>
+      {data?.length >= 1 && data.map((item) => <div>{item.id}</div>)}
+    </div>
+  )
 }
